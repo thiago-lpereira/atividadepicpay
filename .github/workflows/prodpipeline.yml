@@ -1,18 +1,45 @@
-name: Docker Image CI
 
-on:
-  push:
-    branches: [ "PROD" ]
+name: PROD-1${{ github.run_number }}
+
+ # trigger
+on: 
+
+  push: # what will trigger this action
+    branches: [ "main" ] # e qual a branch que vai gerar o gatilho (["*"] todas as branches)
   pull_request:
-    branches: [ "PROD" ]
-
+    branches: [ "PRD" ]
+ 
+# define o que ele vai verificar
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
+ 
+    # passos a serem executados ex:(rodar o requirements, rodar o python, rodar o banco)
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    - uses: actions/checkout@v4 # entra na pasta do meu projeto
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.12.2"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Test with pytest
+      run: |
+        coverage run -m app_test
+ 
+    - name: Results
+      run: coverage report
+  #  - name: Set up Docker Buildx #useless piece of s that i did just because i thought my dockerhub username was thiagolgpereira instead of thiagolpereira (wasted 3 entire hours)
+  #    uses: docker/setup-buildx-action@v2
+    - name: TRYING TO PUSH IT 
+      uses: mr-smithers-excellent/docker-build-push@v6.4
+      with:
+        image: thiagolpereira/image
+        tags: latest,${{ github.run_number }}
+        registry: docker.io
+        dockerfile: dockerfile
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
