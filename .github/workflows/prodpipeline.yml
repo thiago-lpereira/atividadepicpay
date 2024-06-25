@@ -4,8 +4,6 @@ name: PROD-1,${{ github.run_number }}
  # trigger
 on: 
 
-  push: # what will trigger this action
-    branches: [ "main" ] # e qual a branch que vai gerar o gatilho (["*"] todas as branches)
   pull_request:
     branches: [ "PRD" ]
  
@@ -24,7 +22,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest
+
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Test with pytest
       run: |
