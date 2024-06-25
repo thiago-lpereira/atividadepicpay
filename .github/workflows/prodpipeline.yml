@@ -1,6 +1,5 @@
 
-name: PROD-1,${{ github.run_number }}
-
+name: PROD-1,$GITHUB_STEP_SUMMARY
  # trigger
 on: 
 
